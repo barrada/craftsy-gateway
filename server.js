@@ -1,23 +1,32 @@
 // server.js - Gateway API Server Endpoint
-require('dotenv').config();
+import sourceMapSupport from 'source-map-support';
+sourceMapSupport.install();
 
-const express = require('express');
-const cors = require('cors');
-const { createProxyMiddleware } = require('http-proxy-middleware');
+import dotenv from 'dotenv';
+import express from 'express';
+import cors from 'cors';
+import { createProxyMiddleware } from 'http-proxy-middleware';
+
+dotenv.config();
 
 const app = express();
 
 // Load the port from the .env file, defaulting to 3000 if not defined
 const PORT = process.env.PORT || 1000;
 
-// Allow requests from frontend
-// Configure CORS
-app.use(cors({
-  origin: '*', // Allow requests from any origin
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Allow all HTTP methods
-  allowedHeaders: 'Content-Type,Authorization' // Allow the specified headers
-}));
+// Log environment variables to ensure they are loaded
+console.log('Environment Variables:', {
+  USER_SERVICE_URL: process.env.USER_SERVICE_URL,
+  PRODUCT_SERVICE_URL: process.env.PRODUCT_SERVICE_URL,
+  ORDER_SERVICE_URL: process.env.ORDER_SERVICE_URL,
+});
 
+// Allow requests from frontend
+app.use(cors({
+  origin: '*',
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  allowedHeaders: 'Content-Type,Authorization'
+}));
 
 // Define your microservices' endpoints using environment variables
 const serviceRoutes = {
@@ -38,12 +47,11 @@ app.get('/api', (req, res) => {
   });
 });
 
-// logging test
-
+// Logging test
 console.log('Service Routes:', serviceRoutes);
 
 // Proxy routes
-app.use('/api/users', createProxyMiddleware({ target: serviceRoutes.userService, changeOrigin: true,  onError: (err, req, res) => {
+app.use('/api/users', createProxyMiddleware({ target: serviceRoutes.userService, changeOrigin: true, onError: (err, req, res) => {
   console.error('Error proxying user service request:', err);
   res.status(500).send('Something went wrong!');
 } }));
@@ -54,12 +62,12 @@ app.use('/api/orders', createProxyMiddleware({ target: serviceRoutes.orderServic
 app.use((err, req, res, next) => {
     console.error(err);
     res.status(500).send('Something went wrong!');
-  });
+});
 
 // Start the server
 app.listen(PORT, () => {
   console.log(`API Gateway is running on http://localhost:${PORT}`);
 });
 
-// log/test env variable
+// Log/test env variable
 console.log('USER_SERVICE_URL:', process.env.USER_SERVICE_URL);
