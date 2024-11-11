@@ -19,6 +19,7 @@ console.log('Environment Variables:', {
   USER_SERVICE_URL: process.env.USER_SERVICE_URL,
   PRODUCT_SERVICE_URL: process.env.PRODUCT_SERVICE_URL,
   ORDER_SERVICE_URL: process.env.ORDER_SERVICE_URL,
+  COMMUNICATION_SERVICE_URL: process.env.COMMUNICATION_SERVICE_URL
 });
 
 // Allow requests from frontend
@@ -33,6 +34,7 @@ const serviceRoutes = {
   userService: process.env.USER_SERVICE_URL,
   productService: process.env.PRODUCT_SERVICE_URL,
   orderService: process.env.ORDER_SERVICE_URL,
+  communicationService: process.env.COMMUNICATION_SERVICE_URL
 };
 
 // Welcome message at /api
@@ -42,7 +44,8 @@ app.get('/api', (req, res) => {
     availableEndpoints: [
       '/api/users',
       '/api/products',
-      '/api/orders'
+      '/api/orders',
+      'api/communication'
     ]
   });
 });
@@ -57,6 +60,7 @@ app.use('/api/users', createProxyMiddleware({ target: serviceRoutes.userService,
 } }));
 app.use('/api/products', createProxyMiddleware({ target: serviceRoutes.productService, changeOrigin: true }));
 app.use('/api/orders', createProxyMiddleware({ target: serviceRoutes.orderService, changeOrigin: true }));
+app.use('/api/communication', createProxyMiddleware({ target: serviceRoutes.communicationService, changeOrigin: true }));
 
 // Error handling middleware
 app.use((err, req, res, next) => {
